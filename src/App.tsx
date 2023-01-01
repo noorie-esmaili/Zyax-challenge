@@ -1,4 +1,4 @@
-import { Login } from './features/Login'
+import { Login } from './components/Login'
 import './App.css'
 
 
