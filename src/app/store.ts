@@ -3,6 +3,6 @@ import loginReducer from '../features/loginSlice'
 
 export const store = configureStore({
   reducer: {
-    parcels: loginReducer,
+    login: loginReducer,
   },
 })

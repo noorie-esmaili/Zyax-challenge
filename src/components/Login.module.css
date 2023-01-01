@@ -11,3 +11,7 @@
   border-radius: 5px;
   max-width: 400px;
 }
+
+.loginButton {
+  margin-top: 10px;
+}
