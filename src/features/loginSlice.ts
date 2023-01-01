@@ -1,22 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  reload: false,
+  status: '',
 }
 
 const loginSlice = createSlice({
-  name: 'parcels',
+  name: 'loggin',
   initialState,
   reducers: {
-    addParcels: (state, action) => {
-      console.log('########>>> ' + state + '>>>>>>' + action.payload)
-    },
-    updateReload: (state) => {
-      state.reload = !state.reload
+    userLoggedIn: (state, action) => {
+      state.status = action.type
     },
   },
 })
 
-export const { addParcels, updateReload } = loginSlice.actions
+export const { userLoggedIn } = loginSlice.actions
 
 export default loginSlice.reducer

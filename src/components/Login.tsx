@@ -4,10 +4,10 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm } from "react-hook-form"
 import * as Yup from "yup"
 import LoginService from '../service/loginService'
-import { addParcels } from '../features/loginSlice'
-import Alert from "@mui/material/Alert"
+import { userLoggedIn } from '../features/loginSlice'
 import YupPassword from 'yup-password'
 import styles from './Login.module.css'
+import { Container, Row, Col } from 'react-bootstrap'
 YupPassword(Yup)
 
 export function Login() {
@@ -32,58 +32,62 @@ export function Login() {
   const { errors } = formState
 
   function onSubmit() {
-    console.log('clicked')
 
     let userInfo = { email, password }
 
     LoginService.login(userInfo)
       .then((response) => {
-        console.log(response)
-
-        dispatch({ type: addParcels.type, payload: response.data })
+        localStorage.setItem('accessToken', response.data.accessToken)
+        localStorage.setItem('refreshToken', response.data.refreshToken)
         setStatus({ type: "success" })
       })
-      .catch((error) => {
-        console.log(error)
+      .catch(() => {
         setStatus({ type: "error" })
       })
+
+    dispatch({ type: userLoggedIn.type, payload: status })
   }
 
   return (
-    <div className={styles.container}>
-      <div>
-        {status?.type === "success" && (
-          <Alert style={{ fontSize: "1em" }} severity="success">
-            You are logged in
-          </Alert>
-        )}
-        {status?.type === "error" && (
-          <Alert style={{ fontSize: "1em" }} severity="error">
-            Email or password is wrong
-          </Alert>
-        )}
-      </div>
+    <Container className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <input
-          type="email"
-          placeholder="Please enter your email"
-          value={email}
-          {...register("email", { required: true })}
-          className={`${errors.email ? "is-invalid" : ""}`}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <div className="invalid-feedback">{errors.email?.message as string}</div>
-        <input
-          type="password"
-          value={[password]}
-          placeholder="Please enter your password"
-          {...register("password", { required: true })}
-          className={`${errors.password ? "is-invalid" : ""}`}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <div className="invalid-feedback">{errors.password?.message as string}</div>
-        <button type="button" onClick={onSubmit} >Login</button>
+        <Row>
+          <Col >
+            <input
+              type="email"
+              placeholder="Please enter your email"
+              value={email}
+              {...register("email", {
+                required: "required",
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Please enter a valid email address"
+                }
+              })}
+              className={`${errors.email ? "is-invalid" : ""}`}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Col>
+          <Col className={styles.column}>
+            {errors.email && <span role="alert">{errors.email.message as string}</span>}
+          </Col>
+          <Col >
+            <input
+              type="password"
+              value={password}
+              placeholder="Please enter your password"
+              {...register("password", {
+                required: "required"
+              })}
+              className={`${errors.password ? "is-invalid" : ""}`}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Col>
+          <Col className={styles.loginButton}>
+            <button type="submit">Login</button>
+          </Col>
+        </Row>
       </form>
-    </div>
+    </Container>
   )
 }
