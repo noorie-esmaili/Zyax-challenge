@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+}
+
+.form {
+  background-color: antiquewhite;
+  padding: 15px;
+  border: solid antiquewhite;
+  border-radius: 5px;
+  max-width: 400px;
+}
