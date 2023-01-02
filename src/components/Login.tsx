@@ -1,17 +1,13 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useForm } from "react-hook-form"
 import * as Yup from "yup"
 import LoginService from '../service/loginService'
-import { userLoggedIn } from '../features/loginSlice'
-import YupPassword from 'yup-password'
 import styles from './Login.module.css'
+import Alert from '@mui/material/Alert'
 import { Container, Row, Col } from 'react-bootstrap'
-YupPassword(Yup)
 
 export function Login() {
-  const dispatch = useDispatch()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [status, setStatus] = useState({ type: '' })
@@ -22,7 +18,6 @@ export function Login() {
       .email(),
     password: Yup.string()
       .required()
-      .password()
   })
 
   const validationOpt = { resolver: yupResolver(formSchema) }
@@ -32,7 +27,6 @@ export function Login() {
   const { errors } = formState
 
   function onSubmit() {
-
     let userInfo = { email, password }
 
     LoginService.login(userInfo)
@@ -45,49 +39,74 @@ export function Login() {
         setStatus({ type: "error" })
       })
 
-    dispatch({ type: userLoggedIn.type, payload: status })
   }
 
   return (
     <Container className={styles.container}>
-      <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <Row>
-          <Col >
-            <input
-              type="email"
-              placeholder="Please enter your email"
-              value={email}
-              {...register("email", {
-                required: "required",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "Please enter a valid email address"
-                }
-              })}
-              className={`${errors.email ? "is-invalid" : ""}`}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </Col>
-          <Col className={styles.column}>
-            {errors.email && <span role="alert">{errors.email.message as string}</span>}
-          </Col>
-          <Col >
-            <input
-              type="password"
-              value={password}
-              placeholder="Please enter your password"
-              {...register("password", {
-                required: "required"
-              })}
-              className={`${errors.password ? "is-invalid" : ""}`}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Col>
-          <Col className={styles.loginButton}>
-            <button type="submit">Login</button>
-          </Col>
-        </Row>
-      </form>
+      <Row>
+        <Col>
+          {status.type === 'success' && <Alert severity='success'>You logged in successfully!</Alert>}
+          {status.type === 'loggedOut' && <Alert severity='success'>You logged out seccessfully! </Alert>}
+          {status.type === 'error' && <Alert severity='error'>Something went wrong. <br />
+            Make sure you put correct email and password</Alert>}
+          {status.type === 'logout' && <Alert severity='warning'>You are not logged in</Alert>}
+        </Col>
+        {errors.email && <Col className={styles.column}>
+          <Alert severity='error'>{errors.email.message as string}</Alert>
+        </Col>}
+        {errors.password?.message?.toString().includes('required') && <Col>
+          <Alert severity='error'>{errors.password.message as string}</Alert>
+        </Col>}
+        <Col>
+          <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+            <Row>
+              <Col className={styles.column}>
+                <input
+                  type="email"
+                  placeholder="Please enter your email"
+                  value={email}
+                  {...register("email", {
+                    required: "required",
+                    pattern: {
+                      value: /\S+@\S+\.\S+/,
+                      message: "Please enter a valid email address"
+                    }
+                  })}
+                  className={`${errors.email ? "is-invalid" : ""}`}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </Col>
+              <Col >
+                <input
+                  type="password"
+                  value={password}
+                  placeholder="Please enter your password"
+                  {...register("password", {
+                    required: "required"
+                  })}
+                  className={`${errors.password ? "is-invalid" : ""}`}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </Col>
+              <Col className={styles.loginButton}>
+                <button type="submit">ُSubmit</button>
+              </Col>
+            </Row>
+          </form>
+        </Col>
+        <Col>
+          <button type="button" onClick={() => {
+            if (!localStorage.getItem('accessToken')) {
+              setStatus({ type: 'logout' })
+            } else {
+              localStorage.removeItem('accessToken')
+              localStorage.removeItem('refreshToken')
+              setStatus({ type: 'loggedOut' })
+            }
+
+          }}>Logout</button>
+        </Col>
+      </Row>
     </Container>
   )
 }
