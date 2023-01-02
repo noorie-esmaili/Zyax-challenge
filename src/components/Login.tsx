@@ -45,23 +45,24 @@ export function Login() {
     <Container className={styles.container}>
       <Row>
         <Col>
-          {status.type === 'success' && <Alert severity='success'>You logged in successfully!</Alert>}
-          {status.type === 'loggedOut' && <Alert severity='success'>You logged out seccessfully! </Alert>}
-          {status.type === 'error' && <Alert severity='error'>Something went wrong. <br />
+          {status.type === 'success' && <Alert data-test-id='success' severity='success'>You logged in successfully!</Alert>}
+          {status.type === 'loggedOut' && <Alert data-test-id="loggedOut" severity='success'>You logged out seccessfully! </Alert>}
+          {status.type === 'error' && <Alert data-test-id="error" severity='error'>Something went wrong. <br />
             Make sure you put correct email and password</Alert>}
-          {status.type === 'logout' && <Alert severity='warning'>You are not logged in</Alert>}
+          {status.type === 'logout' && <Alert data-test-id="warning" severity='warning'>You are not logged in</Alert>}
         </Col>
         {errors.email && <Col className={styles.column}>
-          <Alert severity='error'>{errors.email.message as string}</Alert>
+          <Alert data-test-id="email-message" severity='error'>{errors.email.message as string}</Alert>
         </Col>}
         {errors.password?.message?.toString().includes('required') && <Col>
-          <Alert severity='error'>{errors.password.message as string}</Alert>
+          <Alert data-test-id="password-message" severity='error'>{errors.password.message as string}</Alert>
         </Col>}
         <Col>
           <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
             <Row>
               <Col className={styles.column}>
                 <input
+                  data-test-id='email'
                   type="email"
                   placeholder="Please enter your email"
                   value={email}
@@ -78,6 +79,7 @@ export function Login() {
               </Col>
               <Col >
                 <input
+                  data-test-id="password"
                   type="password"
                   value={password}
                   placeholder="Please enter your password"
@@ -89,13 +91,13 @@ export function Login() {
                 />
               </Col>
               <Col className={styles.loginButton}>
-                <button type="submit">ُSubmit</button>
+                <button data-test-id='login' type="submit">ُSubmit</button>
               </Col>
             </Row>
           </form>
         </Col>
         <Col>
-          <button type="button" onClick={() => {
+          <button data-test-id="logout" type="button" onClick={() => {
             if (!localStorage.getItem('accessToken')) {
               setStatus({ type: 'logout' })
             } else {
